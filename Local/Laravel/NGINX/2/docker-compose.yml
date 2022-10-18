@@ -1,0 +1,45 @@
+version: "3.6"
+services:
+#  / ****** API ****** /
+  projectx_api:
+    image: reymonzakhary/nginx-php74:v1
+    container_name: projectx_api
+    hostname: projectx_api
+    working_dir: /var/www/
+    restart: always
+    ports:
+    - 80:80
+    volumes:
+      - ../backend:/var/www:cached
+    depends_on:
+      - projectx_db
+
+  #  / ****** DataBase ****** /
+  projectx_db:
+    image: mysql
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    container_name: projectx_db
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_DATABASE: projectx
+      MYSQL_ROOT_PASSWORD: 123456
+
+  #  / ****** PHPMyAdmin ****** /
+  projectx_phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: projectx_phpmyadmin
+    environment:
+      - PMA_ARBITRARY=1
+      - PMA_HOST=pusher_db
+    restart: always
+    ports:
+      - 8080:80
+    volumes:
+      - /sessions
+      - ./.docker/phpmyadmin/config.user.inc.php:/etc/phpmyadmin/config.user.inc.php
+    depends_on:
+      - projectx_db
+      - projectx_api

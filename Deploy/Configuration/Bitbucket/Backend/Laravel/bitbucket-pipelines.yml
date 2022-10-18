@@ -1,0 +1,22 @@
+# Template PHP Build
+
+# This template allows you to validate your PHP application.
+# The workflow allows running tests and code linting on the default branch.
+
+image: mohamedmahdy/ssh:latest
+
+pipelines:
+  default:
+    - parallel: 
+         - step:
+            name: Deploy to test server
+            deployment: test
+            # trigger: manual  # Uncomment to make this a manual deployment.
+            script:
+              - php 
+  branches:
+    dev:
+      - step:
+          script:
+            - apt-get --allow-releaseinfo-change update -qq && apt-get install -y -qq sshpass
+            - sshpass -p $SSH_PASS ssh  -o StrictHostKeyChecking=no $SSH_USERNAME@$SSH_IP "./deploy-theqalink.sh";

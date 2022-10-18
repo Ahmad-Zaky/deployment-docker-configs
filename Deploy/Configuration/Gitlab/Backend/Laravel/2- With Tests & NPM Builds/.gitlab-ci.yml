@@ -1,0 +1,45 @@
+image: composer:latest
+stages:
+  - test
+  - deploy
+
+test-php:
+  stage: test
+  script:
+    - composer install
+    - vendor/bin/phpcs
+    - vendor/bin/phpcpd ./app --progress
+    # run laravel tests
+    # run frontend tests
+    # if you have any task for testing frontend
+    # set it in your package.json script
+    # comment this out if you don't have a frontend test
+    # npm test
+
+test-js:
+  image: node:10 
+  stage: test
+  script:
+    - npm install --save-dev eslint eslint-plugin-vue 
+    - npm run lint
+    - npm run dev
+
+deploy_to_demo:
+  image: mohamedmahdy/ssh:latest
+  stage: deploy
+  before_script:
+    - mkdir -p ~/.ssh
+    - eval "$(ssh-agent -s)"
+    - echo "$SSH_PRIVATE_KEY_144"  | tr -d '\r'  > ~/.ssh/mediatv.pem
+    - chmod 600 ~/.ssh/mediatv.pem
+    - ssh-add ~/.ssh/mediatv.pem
+    - ssh-keyscan -H "$SERVER_IP" >> ~/.ssh/known_hosts
+    - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+  script:
+    - ssh root@"$SERVER_IP" "./deploy.sh"
+    
+  environment:
+    name: Demo
+    url: http://"$SERVER_IP"
+  only:
+    - master

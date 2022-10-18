@@ -1,0 +1,51 @@
+name: DEV Server - Frontend - Angular Droid
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+on:  
+  push:
+    branches:
+      - dev-branch
+  pull_request:
+    types: [ closed ]
+    branches:
+      - dev-branch
+jobs:
+
+  deploy_dev:
+    runs-on: droid_angular_dev_runner
+
+    if: github.event.pull_request.merged == true || (github.event_name == 'push' && github.ref == 'refs/heads/dev-branch')
+
+    steps:
+      - name: pull repo
+        run: |
+          cd /var/www/html/droid_angular_dev/
+          git remote set-url origin https://${{github.actor}}:${{secrets.GITHUB_TOKEN}}@github.com/DroidCloudsOrg/droid_angular_dev.git
+          git checkout dev-branch
+          git pull origin dev-branch
+          
+      - name: Angular Build 
+        run: |
+           cd /var/www/html/droid_angular_dev
+           npm install
+           if [ ! -d dist ]; then
+           echo "\n dist is not exist..."
+           ng build --prod
+           echo "dist folder is deployed now after not exist..."          
+           else
+           echo "\n dist is exist..."
+           mv dist dist_$(date +%d%m%Y-%H%M%S)
+           ng build --prod
+           echo "dist folder is deployed now after exist..."
+           fi      
+          
+      - name: Send Slack notification
+        uses: 8398a7/action-slack@v3
+        if: always()
+        with:
+          author_name: ${{ github.actor }}
+          status: ${{ job.status }}
+          fields: repo,message,commit,author,action,eventName,ref,workflow,job,took,pullRequest # selectable (default: repo,message)    
+        env:
+         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+         GITHUB_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}             

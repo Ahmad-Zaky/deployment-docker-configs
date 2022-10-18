@@ -1,0 +1,41 @@
+version: '2'
+services:
+  app:
+    build:
+      context: . 
+      dockerfile: .docker/apache/Dockerfile
+    volumes:
+      - .:/var/www/html
+      - ./.docker/vhost.conf:/etc/apache2/sites-enabled/apache.conf
+    ports:
+      - "80:80"
+    environment:
+      - VIRTUAL_HOST=mueeny.local
+    depends_on:
+      - mysql
+  mysql:
+    build:
+      context: . 
+      dockerfile: .docker/mysql/Dockerfile    
+    ports:
+      - "3311:3306"
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: mueeny
+  phpmyadmin:
+    build:
+      context: .
+      dockerfile: .docker/phpmyadmin/Dockerfile
+    links: 
+        - mysql:mysql
+    ports:
+        - 8003:80
+    environment:
+        MYSQL_HOST: mysql
+        MYSQL_USER: root
+        MYSQL_PASSWORD: root
+        MYSQL_ROOT_PASSWORD: root
+        PMA_HOST: mysql
+        USER: root
+      

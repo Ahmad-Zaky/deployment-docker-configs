@@ -1,0 +1,54 @@
+name: DEV_API_Laravel
+
+on:
+  push:
+    branches:
+      - release-1
+  pull_request:
+    types: [ closed ] 
+    branches:
+      - release-1
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  deploy_dev:
+    runs-on: droid_api_dev_runner
+
+    if: >-
+      github.event.pull_request.merged == true ||
+      (github.event_name == 'push' && github.ref == 'refs/heads/release-1')
+
+    steps:
+      - name: pull repo and clear cache
+        run: |
+          cd /var/www/html/droid_api_dev/
+          git checkout release-1
+          git pull origin release-1
+          php artisan cache:clear 
+          php artisan optimize
+           
+      - name: laravel actions
+        run: |
+          cd /var/www/html/droid_api_dev/
+          php artisan migrate --seed
+          
+          
+          
+      - name: laravel last 200 lines log
+        run: |
+          cd /var/www/html/droid_api_dev/
+          tail -200 storage/logs/laravel.log
+          
+      - name: Send Slack notification
+        uses: 8398a7/action-slack@v3
+        if: always()
+        with:
+          author_name: ${{ github.actor }}
+          status: ${{ job.status }}
+          fields: repo,message,commit,author,action,eventName,ref,workflow,job,took,pullRequest # selectable (default: repo,message)
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          GITHUB_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+ 

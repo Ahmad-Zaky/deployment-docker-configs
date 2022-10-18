@@ -1,0 +1,31 @@
+stages:          # List of stages for jobs, and their order of execution
+  - deploy
+
+deploy-dev:      # This job runs in the deploy stage.
+  image: ahmed2zaky2/laravel-deploy:latest
+  stage: deploy  # It only runs when *both* jobs in the test stage complete successfully.
+  before_script:
+    - touch private_key_rsa
+    - echo "$SSH_PRIVATE_KEY" > private_key_rsa
+    - chmod 600 private_key_rsa
+  script:
+    - echo "Deploying application..."
+    - ssh -i private_key_rsa -o StrictHostKeyChecking=no -o PubkeyAcceptedKeyTypes=+ssh-rsa -o HostKeyAlgorithms=+ssh-dss $SSH_USER@$SSH_HOST "$SSH_DEPLOY_COMMAND_WING_DEMO"; 
+    - echo "Application successfully deployed."
+  only:
+    - dev
+deploy-main:      # This job runs in the deploy stage.
+  image: ahmed2zaky2/laravel-deploy:latest
+  stage: deploy  # It only runs when *both* jobs in the test stage complete successfully.
+  before_script:
+    - touch private_key_rsa
+    - echo "$SSH_PRIVATE_KEY" > private_key_rsa
+    - chmod 600 private_key_rsa
+  script:
+    - echo "Deploying application..."
+    - ssh -i private_key_rsa -o StrictHostKeyChecking=no -o PubkeyAcceptedKeyTypes=+ssh-rsa -o HostKeyAlgorithms=+ssh-dss $SSH_USER@$SSH_HOST "$SSH_DEPLOY_COMMAND_WING_LIVE"; 
+    - echo "Application successfully deployed."
+  only:
+    - main
+# --------------------------------------------------------------------------------------------------------------------------------------------------------------- #
+# --------------------------------------------------------------------------------------------------------------------------------------------------------------- #

@@ -1,0 +1,50 @@
+version: "2"
+services:
+  app:
+    build:
+      context: .
+      dockerfile: .docker/apache/Dockerfile
+    volumes:
+      - .:/var/www/html
+      - ./.docker/vhost.conf:/etc/apache2/sites-enabled/apache.conf
+    mem_limit: 1024m
+    mem_reservation: 512M
+    ports:
+      - "8000:80"
+    environment:
+      - VIRTUAL_HOST=benefits.local
+    depends_on:
+      - mysql
+    dns:
+    - 8.8.8.8
+    - 4.4.4.4
+  mysql:
+    platform: linux/x86_64
+    build:
+      context: .
+      dockerfile: .docker/mysql/Dockerfile
+    mem_limit: 1024m
+    mem_reservation: 512M
+    ports:
+      - "3313:3306"
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: benefits
+  phpmyadmin:
+    build:
+      context: .
+      dockerfile: .docker/phpmyadmin/Dockerfile
+    links:
+      - mysql:mysql
+    mem_limit: 1024m
+    mem_reservation: 512M
+    ports:
+      - 8003:80
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: root
+      PMA_HOST: mysql
+      USER: root
