@@ -7,8 +7,10 @@ RUN apk add --no-cache bash
 WORKDIR /usr/src/app
 
 COPY package*.json /usr/src/app/
+
 RUN npm install
 
+# install vue cli
 RUN npm install -g @vue/cli
 
 COPY . /usr/src/app/

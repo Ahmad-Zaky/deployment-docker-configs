@@ -1,0 +1,11 @@
+version: '3'
+services:
+  client:
+      build:
+        context: .
+        dockerfile: .docker/node/Dockerfile
+      ports:
+        - "8080:8080"
+      volumes:
+        - .:/usr/src/app/
+        - /usr/src/app/node_modules
