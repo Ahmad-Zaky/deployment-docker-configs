@@ -9,7 +9,7 @@ fi
 
 # Check if first argument is a number
 re='^[0-9]+$'
-if ! [[ $1 =~ $re ]]
+if ! [[ $2 =~ $re ]]
   then
   echo -e "\n\e[1;31mERROR: Not a number \033[0m"
   exit 0
@@ -22,9 +22,33 @@ if ! command -v zip &> /dev/null
   exit 0
 fi
 
-appDir=$2
-versionsDir=$appDir/../versions
+# Handle App Directory Argument
+appDir=$1
+if [ ! -z "$1" ]
+  then
+    limit=$1
+fi
+
+# Handle Limit Argument
+limit=5
+if [ ! -z "$2" ]
+  then
+    appDir=$2
+fi
+
+# Handle Branch Argument
 branch=dev
+if [ ! -z "$3" ]
+  then
+    branch=$3
+fi
+
+# Handle Versions Directory Argument
+versionsDir=$appDir/../versions
+if [ ! -z "$4" ]
+  then
+    versionsDir=$4
+fi
 
 echo -e "\n\e[1;32m #1 - Pull Frontend Repository START ... \033[0m"
 cd $appDir
@@ -81,9 +105,6 @@ fi
 mv $appDir/dist .
 
 echo -e "\n\e[1;32m Remove Old Versions \033[0m"
-
-# The script receives the limit as an argument.
-limit=$1
 
 number_of_files=0
 if [ -n "$(ls -A $versionsDir/dist_* 2>/dev/null)" ]
