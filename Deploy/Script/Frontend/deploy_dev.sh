@@ -9,7 +9,7 @@ fi
 
 # Check if first argument is a number
 re='^[0-9]+$'
-if ! [[ $2 =~ $re ]]
+if [ ! -z "$2" ] && ! [[ $2 =~ $re ]]
   then
   echo -e "\n\e[1;31mERROR: Not a number \033[0m"
   exit 0
@@ -26,14 +26,14 @@ fi
 appDir=$1
 if [ ! -z "$1" ]
   then
-    limit=$1
+    appDir=$1
 fi
 
 # Handle Limit Argument
 limit=5
 if [ ! -z "$2" ]
   then
-    appDir=$2
+    limit=$2
 fi
 
 # Handle Branch Argument
@@ -50,6 +50,15 @@ if [ ! -z "$4" ]
     versionsDir=$4
 fi
 
+# Get Count of versions exists in the versions directory
+versionsCount=0
+if [ -d $versionsDir ] && [ -n "$(ls -A $versionsDir/dist_* 2>/dev/null)" ]
+  then
+  versionsCount=$(ls $versionsDir/dist_* | wc -l)
+fi
+
+
+
 echo -e "\n\e[1;32m #1 - Pull Frontend Repository START ... \033[0m"
 cd $appDir
 git checkout $branch
@@ -59,7 +68,8 @@ echo -e "\n\e[1;32m #1 - Pull Frontend Repository END ... \033[0m"
 
 
 echo -e "\n\e[1;32m #2 - Install Frontend Dependancies START ... \033[0m"
-npm install
+export NODE_OPTIONS=--openssl-legacy-provider
+npm install --legacy-peer-deps
 echo -e "\n\e[1;32m #2 - Install Frontend Dependancies END ... \033[0m"
 
 
@@ -82,14 +92,14 @@ echo -e "\n\e[1;34m Replace Current Version with the new version \033[0m"
 # Move up one level to application root
 cd $appDir/..
 
-# Create Versions Folder if not exists
-mkdir -p $versionsDir
 
 # Check if dist folder exists to move it to versions folder
 if [ -d dist ]
   then
+  # Create Versions Folder if not exists
+  mkdir -p $versionsDir
   zip -r dist.zip dist
-  mv dist.zip versions/dist_$(date +%d%m%Y-%H%M%S).zip
+  mv dist.zip $versionsDir/dist_$(date +%d%m%Y-%H%M%S).zip
   rm -rf dist
 fi
 
@@ -106,17 +116,9 @@ mv $appDir/dist .
 
 echo -e "\n\e[1;34m Remove Old Versions \033[0m"
 
-number_of_files=0
-if [ -n "$(ls -A $versionsDir/dist_* 2>/dev/null)" ]
+if [ $versionsCount -gt $limit ]
   then
-  number_of_files=$(ls $versionsDir/dist_* | wc -l)
-fi
-
-if [ $number_of_files -gt $limit ]
-  then
-  # There are more files than the limit
-  # So we need to remove the older ones.
-  ls -1td dist_* | tail --lines=+$(expr $limit + 1) | xargs -d '\n' rm
+  ls -1td $versionsDir/dist_* | tail --lines=+$(expr $limit + 1) | xargs -d '\n' rm
 fi
 
 echo -e "\n\e[1;32m #4 - Versioning Frontend Done ... \033[0m"
