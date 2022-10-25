@@ -77,7 +77,7 @@ echo -e "\n\e[1;32m #3 - Build Frontend END ... \033[0m"
 echo -e "\n\e[1;32m #4 - Versioning Frontend START ... \033[0m"
 # Ref. https://www.baeldung.com/linux/count-files-remove-oldest
 
-echo -e "\n\e[1;32m Replace Current Version with the new version \033[0m"
+echo -e "\n\e[1;34m Replace Current Version with the new version \033[0m"
 
 # Move up one level to application root
 cd $appDir/..
@@ -104,7 +104,7 @@ fi
 # move new build dist folder up to application root
 mv $appDir/dist .
 
-echo -e "\n\e[1;32m Remove Old Versions \033[0m"
+echo -e "\n\e[1;34m Remove Old Versions \033[0m"
 
 number_of_files=0
 if [ -n "$(ls -A $versionsDir/dist_* 2>/dev/null)" ]
