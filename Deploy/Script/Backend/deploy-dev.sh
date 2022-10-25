@@ -22,5 +22,5 @@ sudo  php artisan migrate
 
 #php artisan up
 
-echo -e '\n\e[1m\e[34mAll done now!\e[0m\n'
+echo -e '\n\e[1m\e[34m All done now!\e[0m\n'
 echo -e '\n\e[1m\e[34m Thanks for automating this deployment process!\e[0m\n'
