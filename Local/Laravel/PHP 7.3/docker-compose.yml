@@ -1,6 +1,7 @@
-version: "2"
+version: "3"
 services:
   app:
+    container_name: app
     build:
       context: .
       dockerfile: .docker/apache/Dockerfile
@@ -18,7 +19,10 @@ services:
     dns:
     - 8.8.8.8
     - 4.4.4.4
+    networks:
+      - app-network
   mysql:
+    container_name: mysql
     platform: linux/x86_64
     build:
       context: .
@@ -31,7 +35,10 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: benefits
+    networks:
+      - app-network
   phpmyadmin:
+    container_name: redis
     build:
       context: .
       dockerfile: .docker/phpmyadmin/Dockerfile
@@ -48,3 +55,15 @@ services:
       MYSQL_ROOT_PASSWORD: root
       PMA_HOST: mysql
       USER: root
+    networks:
+      - app-network
+  redis:
+    container_name: redis
+    build: .docker/redis
+    ports:
+      - "6379:6379"
+    networks:
+      - app-network
+networks:
+  app-network:
+    driver: "bridge"
