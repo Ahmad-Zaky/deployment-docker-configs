@@ -8,15 +8,15 @@ if [ $# -eq 0 ]
 fi
 
 # Check if first argument is a number
-re='^[0-9]+$'
+re="^[0-9]+$"
 if [ ! -z "$2" ] && ! [[ $2 =~ $re ]]
   then
-  echo -e "\n\e[1;31mERROR: Not a number \033[0m"
+  echo -e "\n\e[1;31m ERROR: Not a number \033[0m"
   exit 0
 fi
 
 # Check if zip command exists
-if ! command -v zip &> /dev/null
+if ! [ -x "$(command -v zip)" ]
   then
   echo -e "\n\e[1;31m ERROR: zip could not be found \033[0m"
   exit 0
