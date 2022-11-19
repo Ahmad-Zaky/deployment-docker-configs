@@ -36,13 +36,19 @@ RUN echo "alias seed='php artisan db:seed'" >> ~/.bashrc
 
 # work around to fix Permission Denied issue as we create root files
 RUN echo "mmodel() {\n"\
-  "php artisan make:model \$1\n"\
+  "php artisan make:model \$1 \$2\n"\
   "chp\n"\
 "}\n"\
 >> ~/.bashrc
 
 RUN echo "mmodelfull() {\n"\
   "php artisan make:model \$1 -mcrf\n"\
+  "chp\n"\
+"}\n"\
+>> ~/.bashrc
+
+RUN echo "mmigration() {\n"\
+  "php artisan make:migration \$1\n"\
   "chp\n"\
 "}\n"\
 >> ~/.bashrc
@@ -61,6 +67,18 @@ RUN echo "mresource() {\n"\
 
 RUN echo "mcresource() {\n"\
   "php artisan make:resource \$1 --collection\n"\
+  "chp\n"\
+"}\n"\
+>> ~/.bashrc
+
+RUN echo "mseeder() {\n"\
+  "php artisan make:seeder \$1\n"\
+  "chp\n"\
+"}\n"\
+>> ~/.bashrc
+
+RUN echo "mfactory() {\n"\
+  "php artisan make:factory \$1\n"\
   "chp\n"\
 "}\n"\
 >> ~/.bashrc
