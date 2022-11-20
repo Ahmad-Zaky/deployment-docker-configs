@@ -33,6 +33,7 @@ RUN echo "alias optimize='php artisan optimize'" >> ~/.bashrc
 RUN echo "alias migrate='php artisan migrate'" >> ~/.bashrc
 RUN echo "alias smigrate='php artisan migrate --seed'" >> ~/.bashrc
 RUN echo "alias seed='php artisan db:seed'" >> ~/.bashrc
+RUN echo "alias tinker='php artisan tinker'" >> ~/.bashrc
 
 # work around to fix Permission Denied issue as we create root files
 RUN echo "mmodel() {\n"\
