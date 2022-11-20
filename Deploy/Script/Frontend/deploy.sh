@@ -22,6 +22,13 @@ if ! [ -x "$(command -v zip)" ]
   exit 0
 fi
 
+# Check if directory exists
+if [ ! -d $1 ]
+  then
+  echo -e "\n\e[1;31m ERROR: Directory doesn't exits \033[0m"
+  exit 0
+fi
+
 # Handle App Directory Argument
 appDir=$1
 if [ ! -z "$1" ]
@@ -56,8 +63,6 @@ if [ -d $versionsDir ] && [ -n "$(ls -A $versionsDir/dist_* 2>/dev/null)" ]
   then
   versionsCount=$(ls $versionsDir/dist_* | wc -l)
 fi
-
-
 
 echo -e "\n\e[1;32m #1 - Pull Frontend Repository START ... \033[0m"
 cd $appDir
