@@ -38,7 +38,7 @@ services:
     networks:
       - app-network
   phpmyadmin:
-    container_name: redis
+    container_name: phpmyadmin
     build:
       context: .
       dockerfile: .docker/phpmyadmin/Dockerfile

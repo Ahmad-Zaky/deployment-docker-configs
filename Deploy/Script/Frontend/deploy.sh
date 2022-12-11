@@ -73,7 +73,8 @@ echo -e "\n\e[1;32m #1 - Pull Frontend Repository END ... \033[0m"
 
 
 echo -e "\n\e[1;32m #2 - Install Frontend Dependancies START ... \033[0m"
-export NODE_OPTIONS=--openssl-legacy-provider
+# If node version is lower or equal than 14.15.0 we don't need to to export NODE_OPTIONS
+# export NODE_OPTIONS=--openssl-legacy-provider
 npm install --legacy-peer-deps
 echo -e "\n\e[1;32m #2 - Install Frontend Dependancies END ... \033[0m"
 
@@ -112,7 +113,7 @@ fi
 # Check if dist foldre exists in the application directory
 if [ ! -d $appDir/dist ]
   then
-  echo -e "\n\e[1;31m ERROR: dist folder does not exit in app folder \033[0m"
+  echo -e "\n\e[1;31m ERROR: dist folder does not exists in app folder \033[0m"
   exit 0
 fi
 
