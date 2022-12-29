@@ -65,17 +65,22 @@ if [ -d $versionsDir ] && [ -n "$(ls -A $versionsDir/dist_* 2>/dev/null)" ]
 fi
 
 echo -e "\n\e[1;32m #1 - Pull Frontend Repository START ... \033[0m"
+
 cd $appDir
 git checkout $branch
 git pull origin $branch
+
 echo -e "\n\e[1;32m #1 - Pull Frontend Repository END ... \033[0m"
 
 
 
 echo -e "\n\e[1;32m #2 - Install Frontend Dependancies START ... \033[0m"
-# If node version is lower or equal than 14.15.0 we don't need to to export NODE_OPTIONS
+
+# In case our node version is higher or equal than the project.
 # export NODE_OPTIONS=--openssl-legacy-provider
-npm install --legacy-peer-deps
+# npm install --legacy-peer-deps
+npm install
+
 echo -e "\n\e[1;32m #2 - Install Frontend Dependancies END ... \033[0m"
 
 
@@ -98,6 +103,12 @@ echo -e "\n\e[1;34m Replace Current Version with the new version \033[0m"
 # Move up one level to application root
 cd $appDir/..
 
+# Check if dist foldre exists in the application directory
+if [ ! -d $appDir/dist ]
+  then
+  echo -e "\n\e[1;31m ERROR: dist folder does not exists in app folder \033[0m"
+  exit 0
+fi
 
 # Check if dist folder exists to move it to versions folder
 if [ -d dist ]
@@ -107,14 +118,6 @@ if [ -d dist ]
   zip -r dist.zip dist
   mv dist.zip $versionsDir/dist_$(date +%d%m%Y-%H%M%S).zip
   rm -rf dist
-fi
-
-
-# Check if dist foldre exists in the application directory
-if [ ! -d $appDir/dist ]
-  then
-  echo -e "\n\e[1;31m ERROR: dist folder does not exists in app folder \033[0m"
-  exit 0
 fi
 
 # move new build dist folder up to application root
