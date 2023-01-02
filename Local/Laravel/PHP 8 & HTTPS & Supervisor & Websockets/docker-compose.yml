@@ -1,0 +1,86 @@
+version: "3"
+services:
+  app:
+    container_name: pusher_websockets_app
+    build:
+      context: .
+      dockerfile: .docker/apache/Dockerfile
+    volumes:
+      - .:/var/www/html
+      - ./.docker/apache/vhost.conf:/etc/apache2/sites-enabled/apache.conf
+      - ./.docker/apache/ssl.conf:/etc/apache2/sites-available/default-ssl.conf
+      - ./.docker/apache/ssl-params.conf:/etc/apache2/conf-available/ssl-params.conf
+    mem_limit: 1024m
+    mem_reservation: 512M
+    ports:
+      - 8000:80
+      - 8443:443
+    environment:
+      - VIRTUAL_HOST=websockets.local
+    depends_on:
+      - mysql
+    dns:
+    - 8.8.8.8
+    - 4.4.4.4
+    networks:
+      - app-network
+  mysql:
+    container_name: pusher_websockets_mysql
+    platform: linux/x86_64
+    build:
+      context: .
+      dockerfile: .docker/mysql/Dockerfile
+    mem_limit: 1024m
+    mem_reservation: 512M
+    ports:
+      - "3313:3306"
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: websockets
+    networks:
+      - app-network
+  phpmyadmin:
+    container_name: pusher_websockets_phpmyadmin
+    build:
+      context: .
+      dockerfile: .docker/phpmyadmin/Dockerfile
+    links:
+      - mysql:mysql
+    mem_limit: 1024m
+    mem_reservation: 512M
+    ports:
+      - 8003:80
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: root
+      PMA_HOST: mysql
+      USER: root
+    networks:
+      - app-network
+  supervisor:
+    container_name: pusher_websockets_supervisor
+    build:
+      context: .
+      dockerfile: .docker/supervisor/Dockerfile
+    volumes:
+      - .:/var/www/html
+    mem_limit: 1024m
+    mem_reservation: 512M
+    ports:
+      - 9001:9001
+      - 6001:6001
+    networks:
+      - app-network
+  redis:
+    container_name: pusher_websockets_redis
+    build: .docker/redis
+    ports:
+      - "6379:6379"
+    networks:
+      - app-network
+networks:
+  app-network:
+    driver: "bridge"
