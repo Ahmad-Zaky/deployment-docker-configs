@@ -1,0 +1,94 @@
+version: "3"
+services:
+  app:
+    container_name: benefits_backend_app
+    build:
+      context: .
+      dockerfile: .docker/php/Dockerfile
+    volumes:
+      - .:/var/www/html
+      - .docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
+    mem_limit: 1024m
+    mem_reservation: 512M
+    depends_on:
+      - mariadb
+    networks:
+      - benefits-network
+  server:
+    image: nginx:alpine
+    container_name: benefits_backend_server
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "8000:80"
+    dns:
+      - 8.8.8.8
+      - 4.4.4.4
+    volumes:
+      - .:/var/www/html
+      - .docker/nginx/conf.d/:/etc/nginx/conf.d/
+    networks:
+      - benefits-network
+  mariadb:
+    container_name: benefits_backend_mariadb
+    image: mariadb:10.5
+    restart: always
+    environment:
+      MYSQL_USER:  root
+      MYSQL_DATABASE: benefits
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_PASSWORD: root
+    expose:
+        - "3314"
+    ports:
+        - "3314:3306"
+    networks:
+      - benefits-network
+  
+  phpmyadmin:
+    container_name: benefits_backend_phpmyadmin
+    build:
+      context: .
+      dockerfile: .docker/phpmyadmin/Dockerfile
+    links:
+      - mariadb:mariadb
+    mem_limit: 1024m
+    mem_reservation: 512M
+    ports:
+      - 8003:80
+    environment:
+      USER: root
+      MYSQL_HOST: mariadb
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: root
+      PMA_ARBITRARY: 1
+      PMA_HOST: mariadb
+      PMA_PORT: 3306
+    depends_on:
+      - mariadb
+    networks:
+      - benefits-network
+  supervisor:
+    container_name: benefits_backend_supervisor
+    build:
+      context: .
+      dockerfile: .docker/supervisor/Dockerfile
+    volumes:
+      - .:/var/www/html
+    mem_limit: 1024m
+    mem_reservation: 512M
+    ports:
+      - 9001:9001
+    networks:
+      - benefits-network
+  redis:
+    container_name: benefits_backend_redis
+    build: .docker/redis
+    ports:
+      - "6379:6379"
+    networks:
+      - benefits-network
+networks:
+  benefits-network:
+    driver: "bridge"
