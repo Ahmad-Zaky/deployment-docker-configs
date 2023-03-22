@@ -1,0 +1,49 @@
+stages:          # List of stages for jobs, and their order of execution
+  - deploy
+
+deploy-dev:      # This job runs in the deploy stage.
+  image: ahmed2zaky2/laravel-deploy:latest
+  stage: deploy  # It only runs when *both* jobs in the test stage complete successfully.
+  before_script:
+    - mkdir -p ~/.ssh
+    - echo "$DEPLOY_SERVER_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_rsa
+    - chmod 600 ~/.ssh/id_rsa
+    - eval "$(ssh-agent -s)"
+    - ssh-add ~/.ssh/id_rsa
+    - ssh-keyscan -H 'gitlab.com' >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+    - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" >> ~/.ssh/config
+    - chmod 600 ~/.ssh/config
+  script:
+    - echo "Deploying application..."
+    - ssh $SSH_USER@$SSH_HOST "$SSH_DEPLOY_COMMAND";
+    - echo "Application successfully deployed."
+  environment:
+    name: development
+  only:
+    - dev
+
+deploy-main:      # This job runs in the deploy stage.
+  image: ahmed2zaky2/laravel-deploy:latest
+  stage: deploy  # It only runs when *both* jobs in the test stage complete successfully.
+  before_script:
+    - mkdir -p ~/.ssh
+    - echo "$DEPLOY_SERVER_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_rsa
+    - chmod 600 ~/.ssh/id_rsa
+    - eval "$(ssh-agent -s)"
+    - ssh-add ~/.ssh/id_rsa
+    - ssh-keyscan -H 'gitlab.com' >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+    - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" >> ~/.ssh/config
+    - chmod 600 ~/.ssh/config
+  script:
+    - echo "Deploying application..."
+    - ssh $SSH_USER@$SSH_HOST "$SSH_DEPLOY_COMMAND"; 
+    - echo "Application successfully deployed."
+  environment:
+    name: production
+  only:
+    - main
+
+# --------------------------------------------------------------------------------------------------------------------------------------------------------------- #
+# --------------------------------------------------------------------------------------------------------------------------------------------------------------- #

@@ -1,0 +1,25 @@
+pipelines:
+  branches:
+    dev:
+      - step:
+          name: Deploy to Server
+          deployment: Test
+          script:
+            - echo "Deploying to Testing environment"
+            - pipe: atlassian/ssh-run:0.2.2
+              variables:
+                SSH_USER: "${SSH_USER}"
+                SERVER: "${SERVER}"
+                COMMAND: "${COMMAND}"
+
+    master:
+      - step:
+          name: Deploy to Server
+          deployment: Production
+          script:
+            - echo "Deploying to Production environment"
+            - pipe: atlassian/ssh-run:0.2.2
+              variables:
+                SSH_USER: "${SSH_USER}"
+                SERVER: "${SERVER}"
+                COMMAND: "${COMMAND}"

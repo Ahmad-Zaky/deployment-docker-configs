@@ -18,7 +18,10 @@ sudo  php artisan migrate
 
 
 #sudo composer dump-autoload
- sudo php artisan route:clear; sudo  php artisan view:clear;sudo  php artisan cache:clear;
+sudo php artisan route:clear; sudo  php artisan view:clear;sudo  php artisan cache:clear;
+
+echo -e '\n\e[1m\e[34m Restarting Supervisor Laravel Queue Worker...\e[0m\n'
+sudo supervisorctl restart laravel-queue:*
 
 #php artisan up
 
